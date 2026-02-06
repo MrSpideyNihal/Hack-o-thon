@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DriftGuard Dashboard</title>
+    <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            margin-bottom: 30px;
+        }
+        
+        h1 {
+            color: #667eea;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            color: #666;
+            font-size: 1.1em;
+        }
+        
+        .controls {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            margin-bottom: 20px;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        button:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .status {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            margin-bottom: 20px;
+        }
+        
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .status-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        
+        .status-card h3 {
+            font-size: 2em;
+            margin-bottom: 5px;
+        }
+        
+        .status-card p {
+            opacity: 0.9;
+            font-size: 0.9em;
+        }
+        
+        .alerts {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            margin-bottom: 20px;
+        }
+        
+        .alert-item {
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            border-left: 5px solid;
+        }
+        
+        .alert-critical {
+            background: #fee;
+            border-color: #f00;
+        }
+        
+        .alert-warning {
+            background: #ffc;
+            border-color: #fc0;
+        }
+        
+        .chart-container {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            margin-bottom: 20px;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 50px;
+            color: white;
+            font-size: 1.5em;
+        }
+        
+        .team-badge {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            margin-left: 15px;
+        }
+        
+        h2 {
+            color: #333;
+            margin-bottom: 15px;
+        }
+        
+        .subpop-section {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            margin-bottom: 20px;
+        }
+        
+        .subpop-item {
+            padding: 10px;
+            margin: 5px 0;
+            background: #f8f9fa;
+            border-radius: 5px;
+            border-left: 3px solid #667eea;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🛡️ DriftGuard Dashboard <span class="team-badge">Team Strawhats</span></h1>
+            <p class="subtitle">Real-time Model Drift Detection & Monitoring | Addressing Silent AI Failures</p>
+        </div>
+        
+        <div class="controls">
+            <button onclick="runDriftCheck('A')">🔴 Test Scenario A (Income Shift)</button>
+            <button onclick="runDriftCheck('B')">🟠 Test Scenario B (Credit Score)</button>
+            <button onclick="runDriftCheck('C')">🟡 Test Scenario C (Regional Crisis)</button>
+            <button onclick="refreshDashboard()" style="background: #28a745;">🔄 Refresh</button>
+        </div>
+        
+        <div class="status">
+            <h2>📊 System Status</h2>
+            <div class="status-grid" id="statusGrid">
+                <div class="status-card">
+                    <h3>🟢</h3>
+                    <p>System Ready</p>
+                </div>
+                <div class="status-card">
+                    <h3>0</h3>
+                    <p>Active Alerts</p>
+                </div>
+                <div class="status-card">
+                    <h3>4</h3>
+                    <p>Features Monitored</p>
+                </div>
+                <div class="status-card">
+                    <h3>--</h3>
+                    <p>Model Confidence</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="alerts">
+            <h2>⚠️ Active Alerts</h2>
+            <div id="alertsContainer">
+                <p style="color: #666;">Click a scenario button to test drift detection.</p>
+            </div>
+        </div>
+        
+        <div class="chart-container">
+            <h2>📈 Drift Metrics by Feature</h2>
+            <div id="driftChart" style="height: 400px;"></div>
+        </div>
+        
+        <div class="subpop-section">
+            <h2>👥 Subpopulation Drift Analysis</h2>
+            <div id="subpopContainer">
+                <p style="color: #666;">Subpopulation drift data will appear here after analysis.</p>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        const API_URL = 'http://localhost:8000';
+        
+        async function runDriftCheck(scenario) {
+            try {
+                document.getElementById('alertsContainer').innerHTML = '<p>🔄 Analyzing drift...</p>';
+                
+                const response = await fetch(`${API_URL}/detect-drift?scenario=${scenario}`, {
+                    method: 'POST'
+                });
+                const data = await response.json();
+                
+                updateDashboard(data);
+                
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('alertsContainer').innerHTML = 
+                    '<div class="alert-item alert-critical">❌ Error running drift check. Make sure backend is running at localhost:8000!</div>';
+            }
+        }
+        
+        function updateDashboard(data) {
+            // Update status cards
+            const statusGrid = document.getElementById('statusGrid');
+            statusGrid.innerHTML = `
+                <div class="status-card">
+                    <h3>${data.drift_detected ? '🔴' : '🟢'}</h3>
+                    <p>Drift ${data.drift_detected ? 'DETECTED' : 'Not Detected'}</p>
+                </div>
+                <div class="status-card">
+                    <h3>${data.alerts.length}</h3>
+                    <p>Active Alerts</p>
+                </div>
+                <div class="status-card">
+                    <h3>${Object.keys(data.features).length}</h3>
+                    <p>Features Monitored</p>
+                </div>
+                <div class="status-card">
+                    <h3>${(data.model_confidence * 100).toFixed(0)}%</h3>
+                    <p>Model Confidence</p>
+                </div>
+            `;
+            
+            // Update alerts
+            const alertsContainer = document.getElementById('alertsContainer');
+            if (data.alerts.length === 0) {
+                alertsContainer.innerHTML = '<p>✅ No critical alerts. System healthy.</p>';
+            } else {
+                alertsContainer.innerHTML = data.alerts.map(alert => `
+                    <div class="alert-item alert-${alert.severity.toLowerCase()}">
+                        <strong>${alert.severity}:</strong> ${alert.message}<br>
+                        <small>💡 ${alert.recommendation}</small>
+                    </div>
+                `).join('');
+            }
+            
+            // Update subpopulation drift
+            const subpopContainer = document.getElementById('subpopContainer');
+            if (data.subpopulation_drift && data.subpopulation_drift.length > 0) {
+                subpopContainer.innerHTML = data.subpopulation_drift.map(sub => `
+                    <div class="subpop-item">
+                        <strong>${sub.subpopulation}</strong> - ${sub.feature}: 
+                        PSI = ${sub.psi.toFixed(3)} (${sub.severity})
+                    </div>
+                `).join('');
+            } else {
+                subpopContainer.innerHTML = '<p>✅ No significant subpopulation drift detected.</p>';
+            }
+            
+            // Update chart
+            plotDriftMetrics(data.features);
+        }
+        
+        function plotDriftMetrics(features) {
+            const featureNames = Object.keys(features);
+            const psiValues = featureNames.map(f => features[f].psi);
+            const klValues = featureNames.map(f => features[f].kl_divergence);
+            const severities = featureNames.map(f => features[f].severity);
+            
+            // Color based on severity
+            const colors = severities.map(s => 
+                s === 'CRITICAL' ? '#f00' : s === 'WARNING' ? '#fc0' : '#28a745'
+            );
+            
+            const trace1 = {
+                x: featureNames,
+                y: psiValues,
+                name: 'PSI Score',
+                type: 'bar',
+                marker: { color: colors }
+            };
+            
+            const trace2 = {
+                x: featureNames,
+                y: klValues,
+                name: 'KL Divergence',
+                type: 'bar',
+                marker: { color: '#764ba2' }
+            };
+            
+            const layout = {
+                title: 'Drift Scores by Feature',
+                xaxis: { title: 'Features' },
+                yaxis: { title: 'Score' },
+                barmode: 'group',
+                height: 400,
+                shapes: [
+                    // PSI Warning line
+                    {
+                        type: 'line',
+                        x0: -0.5,
+                        x1: featureNames.length - 0.5,
+                        y0: 0.1,
+                        y1: 0.1,
+                        line: { color: '#fc0', width: 2, dash: 'dash' }
+                    },
+                    // PSI Critical line
+                    {
+                        type: 'line',
+                        x0: -0.5,
+                        x1: featureNames.length - 0.5,
+                        y0: 0.25,
+                        y1: 0.25,
+                        line: { color: '#f00', width: 2, dash: 'dash' }
+                    }
+                ],
+                annotations: [
+                    { x: featureNames.length - 0.6, y: 0.1, text: 'Warning', showarrow: false },
+                    { x: featureNames.length - 0.6, y: 0.25, text: 'Critical', showarrow: false }
+                ]
+            };
+            
+            Plotly.newPlot('driftChart', [trace1, trace2], layout);
+        }
+        
+        async function refreshDashboard() {
+            try {
+                const response = await fetch(`${API_URL}/drift-status`);
+                const data = await response.json();
+                console.log('Status:', data);
+                alert('Dashboard refreshed! Check console for status.');
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Could not reach backend. Is it running?');
+            }
+        }
+        
+        // Initialize empty chart
+        Plotly.newPlot('driftChart', [], {
+            title: 'Run a drift check to see metrics',
+            height: 400
+        });
+    </script>
+</body>
+</html>
