@@ -148,18 +148,3 @@ driftguard/
 
 ---
 
-## 🏆 Why This Wins
-
-1. **Addresses ALL judge feedback** - Rolling baselines, confidence proxies, low-noise
-2. **Real math** - KL, PSI, K-S implemented from scratch
-3. **Production thinking** - Not just a demo, actually deployable
-4. **Visual proof** - Dashboard shows drift in real-time
-5. **Honest about limitations** - We know what doesn't work
-
----
-
-## 👥 Team Strawhats
-
-Built in 2 hours. Tested in production-like conditions. Ready to deploy.
-
-**Rank #1 in Round 1. Going for the WIN in Round 2.** 🔥🏆
