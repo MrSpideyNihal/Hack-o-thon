@@ -1,4 +1,4 @@
-# 🛡️ DriftGuard - Silent Model Drift Detection System
+# DriftGuard - Silent Model Drift Detection System
 
 **Team:** Strawhats  
 **Problem:** Model Output Drift Causing Silent Degradation in Automated Decision Systems  
